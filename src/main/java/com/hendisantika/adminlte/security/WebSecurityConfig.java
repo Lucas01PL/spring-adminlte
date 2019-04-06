@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
@@ -69,16 +70,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userDetailsService).passwordEncoder(encoder);
 
         // add new user "user" with password "password" - password will be encrypted
-        if (userDetailsService.loadUserByUsername("naruto") != null) {
-            List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-            authorities.add(new SimpleGrantedAuthority("USER"));
-            User userDetails = new User("naruto", encoder.encode("1234"), authorities);
+        UserDetails loadUserByUsername = userDetailsService.loadUserByUsername("naruto");
+        if(loadUserByUsername != null) {
+        	System.out.println("===> Usuário encontrado!!! Login: " + loadUserByUsername.getUsername());
         } else {
+        	System.out.println("===> Usuário não encontrado!!!");
         	Users u = new Users();
         	u.setUsername("naruto");
         	u.setPassword(encoder.encode("1234"));
         	usersRepository.save(u);
         }
+        
+        if (loadUserByUsername != null) {
+            List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+            authorities.add(new SimpleGrantedAuthority("USER"));
+            User userDetails = new User("naruto", encoder.encode("1234"), authorities);
+        } 
     }
 
 }
