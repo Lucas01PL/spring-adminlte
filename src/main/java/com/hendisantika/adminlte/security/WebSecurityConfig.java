@@ -17,6 +17,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.hendisantika.adminlte.model.Users;
 import com.hendisantika.adminlte.repository.UsersRepository;
+import com.hendisantika.adminlte.security.model.MyUserPrincipal;
 import com.hendisantika.adminlte.service.MyUsersDetailsService;
 
 import javax.sql.DataSource;
@@ -70,15 +71,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userDetailsService).passwordEncoder(encoder);
 
         // add new user "user" with password "password" - password will be encrypted
-        UserDetails loadUserByUsername = userDetailsService.loadUserByUsername("naruto");
-        if(loadUserByUsername != null) {
-        	System.out.println("===> Usuário encontrado!!! Login: " + loadUserByUsername.getUsername());
-        } else {
-        	System.out.println("===> Usuário não encontrado!!!");
+        UserDetails loadUserByUsername = null;
+        try {
+        	loadUserByUsername = userDetailsService.loadUserByUsername("naruto");
+            if(loadUserByUsername != null) {
+            	System.out.println("===> Usuário encontrado!!! Login: " + loadUserByUsername.getUsername());
+            }
+        } catch(Exception e){
+        	System.out.println("===> Falha ao recuperar informacoes do usuario!!! Erro: " + e.getMessage());
         	Users u = new Users();
         	u.setUsername("naruto");
         	u.setPassword(encoder.encode("1234"));
         	usersRepository.save(u);
+        	loadUserByUsername = new MyUserPrincipal(u);
         }
         
         if (loadUserByUsername != null) {
