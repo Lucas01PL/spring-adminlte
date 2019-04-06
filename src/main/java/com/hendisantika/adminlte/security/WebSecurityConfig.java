@@ -14,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import com.hendisantika.adminlte.model.Users;
+import com.hendisantika.adminlte.repository.UsersRepository;
 import com.hendisantika.adminlte.service.MyUsersDetailsService;
 
 import javax.sql.DataSource;
@@ -30,6 +32,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     
     @Autowired
     private MyUsersDetailsService userDetailsService;
+    
+    @Autowired
+    private UsersRepository usersRepository;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -68,7 +73,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
             authorities.add(new SimpleGrantedAuthority("USER"));
             User userDetails = new User("naruto", encoder.encode("1234"), authorities);
-
+        } else {
+        	Users u = new Users();
+        	u.setUsername("naruto");
+        	u.setPassword(encoder.encode("1234"));
+        	usersRepository.save(u);
         }
     }
 
